@@ -1,3 +1,6 @@
+# SkillAlign
+A Salesforce-based Skill Alignment and Project Readiness system that matches employees to projects using quantified skills, gap analysis, and role-based workflows.
+
 # Salesforce DX Project: Next Steps
 
 Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.

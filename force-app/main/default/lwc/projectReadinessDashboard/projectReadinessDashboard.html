@@ -1,0 +1,143 @@
+<template>
+    <lightning-card title="Project Readiness Dashboard">
+        <div class="slds-p-around_medium slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+            <lightning-button
+                label="Evaluate Candidates"
+                onclick={handleEvaluate}
+                disabled={loading}
+                variant="brand">
+            </lightning-button>
+
+            <template if:true={loading}>
+                <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+            </template>
+        </div>
+
+        <template if:true={hasResults}>
+            <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+                <template for:each={candidates} for:item="c">
+                    <div key={c.employeeId} class="slds-box slds-m-bottom_small">
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-start">
+                            <div class="slds-p-right_medium slds-grow">
+                                <div class="slds-text-heading_small">
+                                    <strong>{c.employeeName}</strong>
+                                </div>
+
+                                <div class="slds-m-top_x-small">
+                                    Gap Score: <strong>{c.gapScore}</strong>
+                                </div>
+
+                                <div class="slds-m-top_x-small">
+                                    <template if:true={c.isReady}>
+                                        <lightning-badge label="Ready"></lightning-badge>
+                                    </template>
+
+                                    <template if:false={c.isReady}>
+                                        <div class="slds-m-top_x-small">
+                                            <strong>Gap Breakdown:</strong>
+
+                                            <template if:true={c.hasDeficits}>
+                                                <ul class="slds-list_dotted slds-m-left_medium slds-text-body_small">
+                                                    <template for:each={c.deficitsList} for:item="d">
+                                                        <li key={d.skillName}>
+                                                            {d.skillName}: {d.deficit}
+                                                        </li>
+                                                    </template>
+                                                </ul>
+
+                                                <!-- SLDS-only compact Details toggle (NO lightning-accordion, NO CSS) -->
+                                                <div class="slds-m-top_small">
+                                                    <button
+                                                        class="slds-button slds-button_reset slds-text-body_small slds-text-color_weak"
+                                                        type="button"
+                                                        data-employee-id={c.employeeId}
+                                                        onclick={toggleDetails}>
+
+                                                        <lightning-icon
+                                                            icon-name={c.detailsIcon}
+                                                            size="x-small"
+                                                            class="slds-m-right_x-small">
+                                                        </lightning-icon>
+
+                                                        <span>Details</span>
+                                                    </button>
+
+                                                    <template if:true={c.showDetails}>
+                                                        <div class="slds-m-top_x-small slds-text-body_small slds-text-color_weak">
+                                                            <template if:true={c.gapRows}>
+                                                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-table_fixed-layout">
+                                                                    <thead>
+                                                                        <tr class="slds-line-height_reset slds-text-body_small">
+                                                                            <th scope="col"><span class="slds-truncate">Skill</span></th>
+                                                                            <th scope="col"><span class="slds-truncate">Req</span></th>
+                                                                            <th scope="col"><span class="slds-truncate">Has</span></th>
+                                                                            <th scope="col"><span class="slds-truncate">Deficit</span></th>
+                                                                            <th scope="col"><span class="slds-truncate">Importance</span></th>
+                                                                            <th scope="col"><span class="slds-truncate">Weight</span></th>
+
+                                                                            <th scope="col">
+                                                                                <div class="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small">
+                                                                                    <span class="slds-truncate">Gap Impact</span>
+                                                                                    <lightning-helptext
+                                                                                        content="Gap Impact = Deficit × Criticality × Project Weight. Required skills are penalized more.">
+                                                                                    </lightning-helptext>
+                                                                                </div>
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <template for:each={c.gapRows} for:item="row">
+                                                                            <tr key={row.skillName} class="slds-text-body_small">
+                                                                                <td>
+                                                                                    <div class="slds-truncate" title={row.skillName}>
+                                                                                        {row.skillName}
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td class="slds-text-align_right">{row.requiredLevel}</td>
+                                                                                <td class="slds-text-align_right">{row.hasLevel}</td>
+                                                                                <td class="slds-text-align_right">{row.deficit}</td>
+                                                                                <td>{row.importance}</td>
+                                                                                <td class="slds-text-align_right">{row.weight}</td>
+                                                                                <td class="slds-text-align_right">
+                                                                                    <strong title={row.reason}>{row.penalty}</strong>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </template>
+                                                                    </tbody>
+                                                                </table>
+                                                            </template>
+
+                                                            <template if:false={c.gapRows}>
+                                                                <div style="white-space:pre-wrap">
+                                                                    {c.details}
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+
+                                            <template if:false={c.hasDeficits}>
+                                                <div>No gap details available.</div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="slds-shrink-none">
+                                <lightning-button
+                                    data-employee-id={c.employeeId}
+                                    label="Assign"
+                                    onclick={handleAssign}
+                                    variant="brand"
+                                    disabled={loading}>
+                                </lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </lightning-card>
+</template>

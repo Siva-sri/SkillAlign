@@ -45,7 +45,6 @@
                                                     </template>
                                                 </ul>
 
-                                                <!-- SLDS-only compact Details toggle (NO lightning-accordion, NO CSS) -->
                                                 <div class="slds-m-top_small">
                                                     <button
                                                         class="slds-button slds-button_reset slds-text-body_small slds-text-color_weak"
@@ -68,18 +67,25 @@
                                                                 <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-table_fixed-layout">
                                                                     <thead>
                                                                         <tr class="slds-line-height_reset slds-text-body_small">
-                                                                            <th scope="col"><span class="slds-truncate">Skill</span></th>
-                                                                            <th scope="col"><span class="slds-truncate">Req</span></th>
-                                                                            <th scope="col"><span class="slds-truncate">Has</span></th>
-                                                                            <th scope="col"><span class="slds-truncate">Deficit</span></th>
-                                                                            <th scope="col"><span class="slds-truncate">Importance</span></th>
-                                                                            <th scope="col"><span class="slds-truncate">Weight</span></th>
-
+                                                                            <th scope="col">Skill</th>
+                                                                            <th scope="col">Req</th>
+                                                                            <th scope="col">Has</th>
                                                                             <th scope="col">
                                                                                 <div class="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small">
-                                                                                    <span class="slds-truncate">Gap Impact</span>
+                                                                                    <span>Effective Level</span>
                                                                                     <lightning-helptext
-                                                                                        content="Gap Impact = Deficit × Criticality × Project Weight. Required skills are penalized more.">
+                                                                                        content="Effective level after confidence and staleness adjustments.">
+                                                                                    </lightning-helptext>
+                                                                                </div>
+                                                                            </th>
+                                                                            <th scope="col">Deficit</th>
+                                                                            <th scope="col">Importance</th>
+                                                                            <th scope="col">Weight</th>
+                                                                            <th scope="col">
+                                                                                <div class="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small">
+                                                                                    <span>Gap Impact</span>
+                                                                                    <lightning-helptext
+                                                                                        content="Gap Impact = Deficit × Criticality × Project Weight. Required skills have higher impact.">
                                                                                     </lightning-helptext>
                                                                                 </div>
                                                                             </th>
@@ -87,38 +93,27 @@
                                                                     </thead>
                                                                     <tbody>
                                                                         <template for:each={c.gapRows} for:item="row">
-                                                                            <tr key={row.skillName} class="slds-text-body_small">
-                                                                                <td>
-                                                                                    <div class="slds-truncate" title={row.skillName}>
-                                                                                        {row.skillName}
-                                                                                    </div>
-                                                                                </td>
+                                                                            <tr key={row.skillName}>
+                                                                                <td>{row.skillName}</td>
                                                                                 <td class="slds-text-align_right">{row.requiredLevel}</td>
                                                                                 <td class="slds-text-align_right">{row.hasLevel}</td>
+                                                                                <td class="slds-text-align_right">
+                                                                                    <strong>{row.effectiveLevel}</strong>
+                                                                                </td>
                                                                                 <td class="slds-text-align_right">{row.deficit}</td>
                                                                                 <td>{row.importance}</td>
                                                                                 <td class="slds-text-align_right">{row.weight}</td>
                                                                                 <td class="slds-text-align_right">
-                                                                                    <strong title={row.reason}>{row.penalty}</strong>
+                                                                                    <strong title={row.reason}>{row.impact}</strong>
                                                                                 </td>
                                                                             </tr>
                                                                         </template>
                                                                     </tbody>
                                                                 </table>
                                                             </template>
-
-                                                            <template if:false={c.gapRows}>
-                                                                <div style="white-space:pre-wrap">
-                                                                    {c.details}
-                                                                </div>
-                                                            </template>
                                                         </div>
                                                     </template>
                                                 </div>
-                                            </template>
-
-                                            <template if:false={c.hasDeficits}>
-                                                <div>No gap details available.</div>
                                             </template>
                                         </div>
                                     </template>

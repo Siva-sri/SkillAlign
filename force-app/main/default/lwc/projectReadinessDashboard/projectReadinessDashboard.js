@@ -35,19 +35,19 @@ export default class ProjectReadinessDashboard extends LightningElement {
                             skillName: item.skillName,
                             requiredLevel: item.requiredLevel,
                             hasLevel: item.hasLevel,
+                            effectiveLevel: item.effectiveLevel, // ✅ NEW
                             deficit: item.deficit,
                             importance: item.importance,
                             weight: item.weight,
-                            penalty: item.penalty,
-                            reason: item.reason
-                            // percentOfTotal REMOVED
+                            impact: item.impact,                // ✅ RENAMED
+                            reason: item.reason,
+                            source: item.source,
+                            lastVerifiedDate: item.lastVerifiedDate
                         }));
                     }
 
-                    const employeeId = r.employeeId;
-
                     return {
-                        employeeId,
+                        employeeId: r.employeeId,
                         employeeName: r.employeeName,
                         gapScore: r.gapScore,
                         isReady: r.gapScore === 0,
@@ -58,19 +58,10 @@ export default class ProjectReadinessDashboard extends LightningElement {
                         details: r.details || '',
                         gapRows,
 
-                        // Details toggle state (per employee)
                         showDetails: false,
                         detailsIcon: 'utility:chevronright'
                     };
                 });
-
-                if (this.candidates.length === 0) {
-                    this.showToast(
-                        'Info',
-                        'No candidates returned. Ensure the project has skill requirements and employees have skills.',
-                        'info'
-                    );
-                }
             })
             .catch((err) => {
                 this.showToast('Error', this.normalizeError(err), 'error');
@@ -90,25 +81,20 @@ export default class ProjectReadinessDashboard extends LightningElement {
 
         this.candidates = this.candidates.map(c => {
             if (c.employeeId !== empId) return c;
-
-            const newShow = !c.showDetails;
+            const expanded = !c.showDetails;
             return {
                 ...c,
-                showDetails: newShow,
-                detailsIcon: newShow ? 'utility:chevrondown' : 'utility:chevronright'
+                showDetails: expanded,
+                detailsIcon: expanded ? 'utility:chevrondown' : 'utility:chevronright'
             };
         });
     }
 
     handleAssign(event) {
         const empId = event.target.dataset.employeeId;
-        if (!empId) {
-            this.showToast('Error', 'Employee Id missing from action.', 'error');
-            return;
-        }
+        if (!empId) return;
 
         this.loading = true;
-
         createAssignment({ projectId: this.recordId, employeeId: empId })
             .then(() => {
                 this.showToast('Success', 'Assignment created.', 'success');

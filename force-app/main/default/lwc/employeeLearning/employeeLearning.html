@@ -1,0 +1,205 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-around_medium">
+
+<!-- HEADER -->
+<div class="learning-header slds-grid slds-grid_vertical-align-center slds-m-bottom_small">
+    <lightning-icon
+        icon-name="utility:education"
+        size="small"
+        class="slds-m-right_small">
+    </lightning-icon>
+
+    <span class="slds-text-heading_large slds-text-title_bold learning-title">
+        Learning
+    </span>
+</div>
+
+            <!-- Loading / error -->
+            <template if:true={loading}>
+                <lightning-spinner
+                    alternative-text="Loading..."
+                    size="small">
+                </lightning-spinner>
+            </template>
+
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-m-bottom_small">
+                    {error}
+                </div>
+            </template>
+
+            <!-- TABSET -->
+            <lightning-tabset class="slds-m-bottom_small">
+                <!-- ... everything else exactly as you already have ... -->
+
+                <!-- TAB 1: Recommendations -->
+                <lightning-tab label={tabLabelRecommendations}>
+                    <!-- Top Skills -->
+                    <template if:true={topSkills.length}>
+                        <div class="slds-m-top_small slds-m-bottom_small slds-text-heading_small">
+                            Top skills to learn next
+                        </div>
+
+                        <div class="slds-box slds-m-bottom_medium">
+                            <template for:each={visibleTopSkills} for:item="s">
+                                <div
+                                    key={s.skillId}
+                                    class="slds-grid slds-wrap slds-p-vertical_x-small slds-border_bottom">
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <strong>{s.skillName}</strong>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-text-align_right">
+                                        Level: {s.employeeLevel} |
+                                        Target: {s.targetLevel} |
+                                        Demand: {s.demandCount}
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template if:true={showTopSkillsToggle}>
+                                <div class="slds-m-top_small slds-text-align_right">
+                                    <lightning-button
+                                        variant="base"
+                                        label={topSkillsToggleLabel}
+                                        onclick={toggleTopSkills}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Recommended Actions -->
+                    <div class="slds-m-bottom_small slds-text-heading_small">
+                        Recommended learning actions
+                    </div>
+
+                    <div class="slds-box">
+                        <template if:true={visibleRecommendedActions.length}>
+                            <template for:each={visibleRecommendedActions} for:item="a">
+                                <div
+                                    key={a.actionId}
+                                    class="slds-grid slds-wrap slds-p-vertical_small slds-border_bottom">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                        <div class="slds-text-title_caps slds-m-bottom_xx-small">
+                                            {a.skillName}
+                                        </div>
+                                        <div class="slds-text-heading_small">
+                                            {a.actionName}
+                                        </div>
+
+                                        <div class="slds-text-body_small slds-m-top_xx-small">
+                                            <template if:true={a.type}>
+                                                <span class="slds-m-right_medium">
+                                                    Type: {a.type}
+                                                </span>
+                                            </template>
+                                            <template if:true={a.url}>
+                                                <a
+                                                    href={a.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer">
+                                                    Open
+                                                </a>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-m-top_small slds-medium-m-top_none">
+                                        <template if:true={a.isInPlan}>
+                                            <lightning-badge label="Already in plan"></lightning-badge>
+                                        </template>
+                                        <template if:false={a.isInPlan}>
+                                            <lightning-button
+                                                label="Add to My Plan"
+                                                variant="brand"
+                                                data-action-id={a.actionId}
+                                                onclick={handleAddToPlan}>
+                                            </lightning-button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template if:true={showActionsToggle}>
+                                <div class="slds-m-top_small slds-text-align_right">
+                                    <lightning-button
+                                        variant="base"
+                                        label={actionsToggleLabel}
+                                        onclick={toggleActions}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                        </template>
+
+                        <template if:false={visibleRecommendedActions.length}>
+                            <div class="slds-text-body_small">
+                                No learning actions found for the current priority skills.
+                            </div>
+                        </template>
+                    </div>
+                </lightning-tab>
+
+                <!-- TAB 2: My Plan -->
+                <lightning-tab label={tabLabelPlan}>
+                    <template if:true={myPlan.length}>
+                        <div class="slds-box">
+                            <template for:each={myPlan} for:item="p">
+                                <div
+                                    key={p.planId}
+                                    class="slds-grid slds-wrap slds-p-vertical_small slds-border_bottom">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                        <div class="slds-text-title_caps slds-m-bottom_xx-small">
+                                            {p.skillName}
+                                        </div>
+                                        <div class="slds-text-heading_small">
+                                            {p.learningActionName}
+                                        </div>
+
+                                        <div class="slds-text-body_small slds-m-top_xx-small">
+                                            <template if:true={p.type}>
+                                                <span class="slds-m-right_medium">
+                                                    Type: {p.type}
+                                                </span>
+                                            </template>
+                                            <template if:true={p.url}>
+                                                <a
+                                                    href={p.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer">
+                                                    Open
+                                                </a>
+                                            </template>
+                                            <template if:true={p.completedDate}>
+                                                <span class="slds-m-left_medium">
+                                                    Completed: {p.completedDate}
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-m-top_small slds-medium-m-top_none">
+                                        <lightning-combobox
+                                            label="Status"
+                                            variant="label-hidden"
+                                            value={p.status}
+                                            options={statusOptions}
+                                            data-plan-id={p.planId}
+                                            onchange={handleStatusChange}>
+                                        </lightning-combobox>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template if:false={myPlan.length}>
+                        <div class="slds-text-body_small">
+                            No items in your plan yet. Add one from the Recommendations tab.
+                        </div>
+                    </template>
+                </lightning-tab>
+            </lightning-tabset>
+        </div>
+    </lightning-card>
+</template>
